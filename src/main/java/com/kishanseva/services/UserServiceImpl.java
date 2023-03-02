@@ -42,15 +42,14 @@ public class UserServiceImpl implements UserService {
 			logger.info("Error " + e.getMessage());
 			return null;
 		}
-
 	}
+
 	private String uniqueID(String id) {
 		logger.info("generating unique id");
 		String num = id + System.currentTimeMillis();
 		return num;
 	}
-	
-	
+
 	@Override
 	public List<User> getRecordList(String request) {
 		try {
