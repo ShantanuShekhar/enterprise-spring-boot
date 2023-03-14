@@ -12,4 +12,16 @@ public interface UserDao extends JpaRepository<User, String> {
 
 	List<User> findAllByUserNameIn(List<String> data);
 
+//	List<User> findByUserNameIsNull(List<String> data);
+
+	List<User> findByUserNameIsNot(String name1);
+
+	List<User> findByUserNameIs(String name1);
+
+	List<User> findByUserNameAndUserPassword(String name1, String string);
+
+	List<User> findByUserNameAndUserName(String name1, String string);
+
+//	List<User> findByUserNameOrUserName(String name1);
+
 }

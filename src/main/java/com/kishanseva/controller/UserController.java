@@ -2,11 +2,13 @@ package com.kishanseva.controller;
 
 import java.util.List;
 
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,7 +18,7 @@ import com.kishanseva.model.User;
 import com.kishanseva.services.UserService;
 
 @RestController
-@RequestMapping(value = "/user-details")
+//@RequestMapping(value = "/user-details")
 public class UserController {
 	private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
@@ -27,15 +29,15 @@ public class UserController {
 	public ResponseEntity<?> createRecord(@RequestBody String request) {
 		try {
 			User user = userService.saveUserRecords(request);
+			logger.info("usert is " + user);
 			return new ResponseEntity<>(user, HttpStatus.OK);
 		} catch (Exception e) {
 			logger.info(e.getMessage());
 			return new ResponseEntity<>("Something went wrong", HttpStatus.EXPECTATION_FAILED);
 		}
-
 	}
-	
-	@PostMapping(value = "/get-user")
+
+	@GetMapping(value = "/get-user")
 	public ResponseEntity<?> getRecordList(@RequestBody String request) {
 		try {
 			List<User> list = userService.getRecordList(request);
@@ -44,7 +46,32 @@ public class UserController {
 			logger.info(e.getMessage());
 			return new ResponseEntity<>("Something went wrong", HttpStatus.EXPECTATION_FAILED);
 		}
+	}
 
+	@PostMapping(value = "/test-user")
+	public ResponseEntity<?> testUser(@RequestBody String request) {
+		try {
+			JSONObject obj = new JSONObject(request);
+			int number = obj.getInt("k1");
+//			List<User> list = userService.getRecordList(request);
+			return new ResponseEntity<>(number, HttpStatus.OK);
+		} catch (Exception e) {
+			logger.info(e.getMessage());
+			return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
+		}
+	}
+	
+	
+	@PostMapping(value = "/update-user")
+	public ResponseEntity<?> updateRecord(@RequestBody String request) {
+		try {
+			User user = userService.updateUserRecords(request);
+			logger.info("usert is " + user);
+			return new ResponseEntity<>(user, HttpStatus.OK);
+		} catch (Exception e) {
+			logger.info(e.getMessage());
+			return new ResponseEntity<>("Something went wrong", HttpStatus.EXPECTATION_FAILED);
+		}
 	}
 
 }

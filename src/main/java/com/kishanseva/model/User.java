@@ -1,10 +1,17 @@
 package com.kishanseva.model;
 
+import java.io.Serializable;
+
 import javax.persistence.*;
+
+import com.kishanseva.util.UserAudit;
 
 @Entity
 @Table(name = "User")
-public class User {
+public class User extends UserAudit implements Serializable{
+	
+	private static final long serialVersionUID = 5468607267229292043L;
+
 	@Id
 	@Column(name = "UserID")
 	private String usrID;
