@@ -34,6 +34,7 @@ public abstract class UserAudit {
 
 	@PrePersist
 	public void prePersist() {
+		System.out.println("Running prePersist");
 		String createdByUser = getUsernameOfAuthenticatedUser();
 		this.createdBy = createdByUser;
 		this.LastModifiedBy = createdByUser;
@@ -41,6 +42,7 @@ public abstract class UserAudit {
 
 	@PreUpdate
 	public void preUpdate() {
+		System.out.println("Running preUpdate");
 		String modifiedByUser = getUsernameOfAuthenticatedUser();
 		this.LastModifiedBy = modifiedByUser;
 	}
@@ -60,8 +62,12 @@ public abstract class UserAudit {
 		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		if (principal instanceof UserDetails) {
 			username = ((UserDetails) principal).getUsername();
+			System.out.println("userName from UserDetails is " + username);
 		} else {
 			username = principal.toString();
+
+//			username = ((UserDetails) principal).getUsername();
+			System.out.println("userName from UserDetails from else " + username);
 		}
 		System.out.println("validated username is " + username);
 		return username;

@@ -1,6 +1,8 @@
 package com.kishanseva.services;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import org.json.JSONException;
@@ -8,10 +10,15 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Repository;
 
 import com.kishanseva.dao.UserDao;
 import com.kishanseva.model.User;
+import com.kishanseva.util.Constant;
+import com.kishanseva.util.Response;
+import com.kishanseva.util.ResponseCode;
+import com.kishanseva.util.ResponseMessage;
 
 @Repository
 public class UserServiceImpl implements UserService {
@@ -19,30 +26,44 @@ public class UserServiceImpl implements UserService {
 	@Autowired
 	private UserDao userDao;
 
-	@Override
-	public User saveUserRecords(String request) throws JSONException {
-		logger.info("Inside UserServiceImpl::saveUserRecords");
-//		try {
+	@Autowired
+	private PasswordEncoder encoder;
 
+	@Override
+	public Response saveUserRecords(String request) throws JSONException {
+		logger.info("Inside UserServiceImpl::saveUserRecords");
+
+		Response response = new Response();
 		JSONObject obj = new JSONObject(request);
-		String name = obj.getString("k1");
+		String userName = obj.getString("k1");
 		String password = obj.getString("k2");
 		String role = obj.getString("k3");
-		logger.info("name {}", name);
+		logger.info("name {}", userName);
 		logger.info("password {} ", password);
 		logger.info("role is {} ", role);
 
+		// validating userName using rejex
+		boolean matcher = true;
+		matcher = userName.matches(Constant.EMAIL_REGEX);
+		if (!matcher) {
+			response.setMessage(ResponseMessage.EmailMessage);
+			response.setStatus(ResponseCode.VALIDATION_ERROR_API_CODE);
+			response.setList(Arrays.asList());
+			return response;
+		}
 		User user = new User();
 		user.setUsrID(createUniqueID("USER"));
-		user.setUserName(name);
-		user.setUserPassword(password);
+		user.setUserName(userName);
+		user.setPassword(encoder.encode(password));
 		user.setRole(role);
+		user.setCreatedBy(userName);
+		user.setCreatedOn(new Date());
 		User userObj = userDao.save(user);
-		return userObj;
-//		} catch (Exception e) {
-//			logger.info("Error " + e.getMessage());
-//			return null;
-//		}
+
+		response.setMessage(ResponseMessage.DETAIL_RETRIEVE_SUCCESS);
+		response.setStatus(ResponseCode.SUCCESS_API_CODE);
+		response.setList(Arrays.asList(userObj));
+		return response;
 
 	}
 
@@ -90,11 +111,15 @@ public class UserServiceImpl implements UserService {
 			logger.info("userId is " + userId);
 			String username = obj.getString("k2");
 			String role = obj.getString("k3");
-			logger.info("name {}", username);
+			logger.info("name {}", username);// USER1678885152686
 			logger.info("role is {} ", role);
 			User user = userDao.findById(userId).get();
+			String userName = user.getUserName();
+			logger.info("Username is " + userName);
 			user.setUserName(username);
 			user.setRole(role);
+			user.setUpdatedBy(username);
+			user.setUpdatedOn(new Date());
 			User userObj = userDao.save(user);
 			return userObj;
 
@@ -102,6 +127,44 @@ public class UserServiceImpl implements UserService {
 			logger.info(e.getMessage());
 			return null;
 		}
+	}
 
+//	@Override
+//	public User findByUserName(String userName) {
+//
+//		logger.info("Inside Userservice Finding UserName " + userName);
+//		return userDao.findByUserName(userName).get();
+//	}
+
+	@Override
+	public Response deleteUserRecord(String request) throws JSONException {
+		logger.info("inside deleteUserRecord");
+
+		Response response = new Response();
+		JSONObject obj = new JSONObject(request);
+		String userID = obj.getString("k1");
+		logger.info("userId is " + userID);
+		User user = userDao.findById(userID).get();
+		if (user == null) {
+			response.setList(Arrays.asList());
+			response.setMessage("user is not founr to this ID " + userID);
+			response.setStatus("ERROR000");
+			return response;
+		}
+		String username = user.getUserName();
+		user.setUpdatedBy(username);
+		user.setUpdatedOn(new Date());
+		userDao.save(user);
+		userDao.deleteById(userID);
+		response.setList(Arrays.asList());
+		response.setMessage("ID " + userID + " Record has been deleted succssfully ");
+		response.setStatus(ResponseCode.SUCCESS_API_CODE);
+		return response;
+	}
+
+	@Override
+	public User findByUserName(String userName) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

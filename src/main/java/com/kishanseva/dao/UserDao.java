@@ -1,14 +1,16 @@
 package com.kishanseva.dao;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.history.RevisionRepository;
 import org.springframework.stereotype.Repository;
 
 import com.kishanseva.model.User;
 
 @Repository
-public interface UserDao extends JpaRepository<User, String> {
+public interface UserDao extends JpaRepository<User, String>, RevisionRepository<User, String, Integer> {
 
 	List<User> findAllByUserNameIn(List<String> data);
 
@@ -18,9 +20,11 @@ public interface UserDao extends JpaRepository<User, String> {
 
 	List<User> findByUserNameIs(String name1);
 
-	List<User> findByUserNameAndUserPassword(String name1, String string);
+	List<User> findByUserNameAndPassword(String name1, String string);
 
 	List<User> findByUserNameAndUserName(String name1, String string);
+
+	Optional<User> findByUserName(String userName);
 
 //	List<User> findByUserNameOrUserName(String name1);
 

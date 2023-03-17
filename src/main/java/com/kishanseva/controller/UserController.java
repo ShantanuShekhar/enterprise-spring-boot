@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.kishanseva.model.User;
 import com.kishanseva.services.UserService;
+import com.kishanseva.util.Response;
 
 @RestController
 //@RequestMapping(value = "/user-details")
@@ -28,9 +29,15 @@ public class UserController {
 	@PostMapping(value = "/create-user")
 	public ResponseEntity<?> createRecord(@RequestBody String request) {
 		try {
-			User user = userService.saveUserRecords(request);
-			logger.info("usert is " + user);
-			return new ResponseEntity<>(user, HttpStatus.OK);
+			Response response = new Response();
+			JSONObject obj = new JSONObject(request);
+			String userName = obj.getString("k1");
+			User user = userService.findByUserName(userName);
+			if (user != null) {
+				return new ResponseEntity<>(userName + " all ready exist", HttpStatus.OK);
+			}
+			response = userService.saveUserRecords(request);
+			return new ResponseEntity<>(response, HttpStatus.OK);
 		} catch (Exception e) {
 			logger.info(e.getMessage());
 			return new ResponseEntity<>("Something went wrong", HttpStatus.EXPECTATION_FAILED);
@@ -60,8 +67,7 @@ public class UserController {
 			return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
 		}
 	}
-	
-	
+
 	@PostMapping(value = "/update-user")
 	public ResponseEntity<?> updateRecord(@RequestBody String request) {
 		try {
@@ -72,6 +78,25 @@ public class UserController {
 			logger.info(e.getMessage());
 			return new ResponseEntity<>("Something went wrong", HttpStatus.EXPECTATION_FAILED);
 		}
+	}
+
+	@PostMapping(value = "/delete-user")
+	public ResponseEntity<?> deleteRecord(@RequestBody String request) {
+		try {
+			Response response = new Response();
+			response = userService.deleteUserRecord(request);
+			logger.info("usert is " + response);
+			return new ResponseEntity<>(response, HttpStatus.OK);
+		} catch (Exception e) {
+			logger.info(e.getMessage());
+			return new ResponseEntity<>("Something went wrong", HttpStatus.EXPECTATION_FAILED);
+		}
+	}
+
+	@GetMapping(value = "/access")
+	public ResponseEntity<?> deleteRecord() {
+		logger.info("Authenticated ");
+		return new ResponseEntity<>("Authenticated", HttpStatus.OK);
 	}
 
 }

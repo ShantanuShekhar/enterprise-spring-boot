@@ -10,7 +10,6 @@ import com.kishanseva.services.AuditorAwareImpl;
 @Component
 @EnableJpaAuditing(auditorAwareRef = "auditorAware")
 public class AudtiConfig {
-
 	@Bean
 	public AuditorAware<String> auditorAware() {
 		return new AuditorAwareImpl();
