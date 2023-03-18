@@ -98,5 +98,11 @@ public class UserController {
 		logger.info("Authenticated ");
 		return new ResponseEntity<>("Authenticated", HttpStatus.OK);
 	}
+	
+	@GetMapping("/login")
+	String login() {
+		return "login";
+	}
+
 
 }
