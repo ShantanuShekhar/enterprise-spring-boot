@@ -2,6 +2,9 @@ package com.kishanseva.controller;
 
 import java.util.List;
 
+import javax.servlet.http.HttpServlet;
+import javax.validation.Valid;
+
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,9 +17,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.kishanseva.dto.UserDto;
 import com.kishanseva.model.User;
 import com.kishanseva.services.UserService;
+import com.kishanseva.util.Constant;
 import com.kishanseva.util.Response;
+import com.kishanseva.util.ResponseCode;
 
 @RestController
 //@RequestMapping(value = "/user-details")
@@ -26,12 +32,14 @@ public class UserController {
 	@Autowired
 	private UserService userService;
 
-	@PostMapping(value = "/create-user")
+	@GetMapping(value = "/create-user")
 	public ResponseEntity<?> createRecord(@RequestBody String request) {
 		try {
+			logger.info("inside create-user");
 			Response response = new Response();
 			JSONObject obj = new JSONObject(request);
 			String userName = obj.getString("k1");
+			logger.info("username is " + userName);
 			User user = userService.findByUserName(userName);
 			if (user != null) {
 				return new ResponseEntity<>(userName + " all ready exist", HttpStatus.OK);
@@ -98,11 +106,36 @@ public class UserController {
 		logger.info("Authenticated ");
 		return new ResponseEntity<>("Authenticated", HttpStatus.OK);
 	}
-	
-	@GetMapping("/login")
-	String login() {
-		return "login";
+
+	@PostMapping("/login")
+	public ResponseEntity<?> login(@RequestBody String reqbody) {
+		logger.info("Authenticated scbuasdvgucu");
+		Response response = new Response();
+		logger.info("inside login api ");
+		response = userService.getByUserNameAndPassword(reqbody);
+		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
+	@PostMapping("/login-user")
+	public ResponseEntity<?> login1(@RequestBody UserDto reqbody) {
+		logger.info("Authenticated scbuasdvgucu");
+		Response response = new Response();
+
+		logger.info("inside login api ");
+
+		response = userService.verifyUserNameAndPassword(reqbody);
+		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
+	
+//	@PostMapping("/vie-list")
+//	public ResponseEntity<?> login1(@RequestBody UserDto reqbody) {
+//		logger.info("Authenticated scbuasdvgucu");
+//		Response response = new Response();
+//
+//		logger.info("inside login api ");
+//
+//		response = userService.verifyUserNameAndPassword(reqbody);
+//		return new ResponseEntity<>(response, HttpStatus.OK);
+//	}
 
 }

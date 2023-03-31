@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
+import org.apache.tomcat.util.bcel.Const;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -14,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Repository;
 
 import com.kishanseva.dao.UserDao;
+import com.kishanseva.dto.UserDto;
 import com.kishanseva.model.User;
 import com.kishanseva.util.Constant;
 import com.kishanseva.util.Response;
@@ -37,10 +40,8 @@ public class UserServiceImpl implements UserService {
 		JSONObject obj = new JSONObject(request);
 		String userName = obj.getString("k1");
 		String password = obj.getString("k2");
-		String role = obj.getString("k3");
 		logger.info("name {}", userName);
 		logger.info("password {} ", password);
-		logger.info("role is {} ", role);
 
 		// validating userName using rejex
 		boolean matcher = true;
@@ -55,7 +56,7 @@ public class UserServiceImpl implements UserService {
 		user.setUsrID(createUniqueID("USER"));
 		user.setUserName(userName);
 		user.setPassword(encoder.encode(password));
-		user.setRole(role);
+		user.setRole(Constant.CUSTOMER_ROL);
 		user.setCreatedBy(userName);
 		user.setCreatedOn(new Date());
 		User userObj = userDao.save(user);
@@ -88,13 +89,13 @@ public class UserServiceImpl implements UserService {
 //			List<User> list = userDao.findAllByUserNameIn(data);
 
 //			List<User> list = 	userDao.findByUserNameIs(null);
-			List<User> list = userDao.findByUserNameAndUserName(name1, null);
+//			List<User> list = userDao.findByUserNameAndUserName(name1, null);
 //			List<User> list = userDao.findByUserNameIsNot(name1);
-			logger.info("username is " + list);
+//			logger.info("username is " + list);
 //			userDao.fin
-			logger.info("list from dao is " + list.size());
-			return list;
-
+//			logger.info("list from dao is " + list.size());
+//			return list;
+			return null;
 		} catch (Exception e) {
 			return null;
 		}
@@ -164,7 +165,67 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public User findByUserName(String userName) {
-		// TODO Auto-generated method stub
-		return null;
+		logger.info("Inside service");
+		return userDao.findByUserName(userName).orElse(null);
+//		logger.info("username ccc is {}", user);
+
+	}
+
+	@Override
+	public Response getByUserNameAndPassword(String reqbody) {
+		Response response = new Response();
+
+		try {
+			JSONObject obj = new JSONObject(reqbody);
+			String userName = obj.getString("k1");
+			String password = obj.getString("k2");
+
+			List<User> list = userDao.findByUserNameAndPassword(userName, password);
+			if (list.isEmpty()) {
+				return null;
+			} else {
+				logger.info("list is " + list);
+
+				response.setList(list);
+				response.setMessage("Login Successfully");
+				response.setStatus(ResponseCode.SUCCESS_API_CODE);
+				return response;
+			}
+
+		} catch (JSONException e) {
+			e.printStackTrace();
+			response.setStatus("ERRORX000");
+			response.setMessage(ResponseMessage.CATCH_ERROR_RESPONSE);
+			return response;
+		}
+	}
+
+	@Override
+	public Response verifyUserNameAndPassword(UserDto reqbody) {
+		Response response = new Response();
+		String pass = reqbody.getPassword();
+		User user = userDao.findByUserName(reqbody.getUserName()).get();
+		if (encoder.matches(pass, user.getPassword())) {
+			List<User> list = userDao.findByUserNameAndPassword(reqbody.getUserName(), user.getPassword());
+			if (!list.isEmpty()) {
+				response.setList(list);
+				response.setMessage("Login Successfully");
+				response.setStatus(ResponseCode.SUCCESS_API_CODE);
+				return response;
+			} else {
+				response.setList(list);
+				response.setMessage("Incorrect username or password please check");
+				response.setStatus(ResponseCode.VALIDATION_ERROR_API_CODE);
+				return response;
+
+			}
+		} else {
+			response.setList(null);
+			response.setMessage("Incorrect username or password please check");
+			response.setStatus(ResponseCode.VALIDATION_ERROR_API_CODE);
+			return response;
+
+		}
+
 	}
 }

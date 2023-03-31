@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.history.RevisionRepository;
 import org.springframework.stereotype.Repository;
 
+import com.kishanseva.dto.UserDto;
 import com.kishanseva.model.User;
 
 @Repository
@@ -21,8 +22,6 @@ public interface UserDao extends JpaRepository<User, String>, RevisionRepository
 	List<User> findByUserNameIs(String name1);
 
 	List<User> findByUserNameAndPassword(String name1, String string);
-
-	List<User> findByUserNameAndUserName(String name1, String string);
 
 	Optional<User> findByUserName(String userName);
 

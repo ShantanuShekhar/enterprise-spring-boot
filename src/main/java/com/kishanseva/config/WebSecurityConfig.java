@@ -46,9 +46,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 				authorizeRequests().antMatchers("/create-user").
 
 				// for everything else, the user has to be authenticated
-				permitAll().antMatchers("/update-user").permitAll().antMatchers("/delete-user").permitAll().anyRequest()
-				.authenticated().and().httpBasic();
-		// .and().formLogin();
+				permitAll().antMatchers("/update-user").permitAll().antMatchers("/delete-user").permitAll()
+				.antMatchers("/login-user").permitAll().antMatchers("/category/sell-item").permitAll().anyRequest()
+				.authenticated();///
+//				.and().httpBasic();
+
+//		 .and().formLogin();
 		// setting stateless session, because we choose to implement Rest API
 //				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 		http.headers().cacheControl();
